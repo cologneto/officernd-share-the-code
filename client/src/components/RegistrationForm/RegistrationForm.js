@@ -7,6 +7,7 @@ import { withRouter } from "react-router-dom";
 function RegistrationForm(props) {
     const [state , setState] = useState({
         email : "",
+        username : "",
         password : "",
         confirmPassword: "",
         successMessage: null
@@ -19,29 +20,31 @@ function RegistrationForm(props) {
         }))
     }
     const sendDetailsToServer = () => {
-        if(state.email.length && state.password.length) {
+        if(state.email.length && state.password.length)
+        {
             props.showError(null);
-            const payload={
-                "email":state.email,
-                "password":state.password,
-            }
-            axios.post(API_BASE_URL+'/user/register', payload)
-                .then(function (response) {
-                    if(response.status === 200){
-                        setState(prevState => ({
-                            ...prevState,
-                            'successMessage' : 'Registration successful. Redirecting to home page..'
-                        }))
-                        localStorage.setItem(ACCESS_TOKEN_NAME,response.data.token);
-                        redirectToHome();
-                        props.showError(null)
-                    } else{
-                        props.showError("Some error ocurred");
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            const payload = {
+                "email": state.email,
+                "password": state.password,
+        }
+
+        axios.post(API_BASE_URL+'/user/register', payload)
+            .then(function (response) {
+                if(response.status === 200){
+                    setState(prevState => ({
+                        ...prevState,
+                        'successMessage' : 'Registration successful. Redirecting to home page..'
+                    }))
+                    localStorage.setItem(ACCESS_TOKEN_NAME,response.data.token);
+                    redirectToHome();
+                    props.showError(null)
+                } else{
+                    props.showError("Some error ocurred");
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         } else {
             props.showError('Please enter valid username and password')
         }
@@ -77,6 +80,16 @@ function RegistrationForm(props) {
                            onChange={handleChange}
                     />
                     <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+                <div className="form-group text-left">
+                    <label htmlFor="exampleInputEmail1">Username</label>
+                    <input type="email"
+                           className="form-control"
+                           id="username"
+                           placeholder="Enter email"
+                           value={state.username}
+                           onChange={handleChange}
+                    />
                 </div>
                 <div className="form-group text-left">
                     <label htmlFor="exampleInputPassword1">Password</label>
