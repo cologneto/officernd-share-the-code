@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cors = require("cors");
 const dbConfig = require("./config/db.config");
+const cors = require("cors");
 
 const app = express();
 const db = require("./models");
@@ -21,9 +21,8 @@ db.mongoose
         process.exit();
     });
 
-
 var corsOptions = {
-    origin: "http://localhost:8081"
+    origin: null
 };
 
 app.use(cors(corsOptions));
@@ -36,7 +35,10 @@ app.get("/", (req, res) => {
     res.json({ message: "This is a test" });
 });
 
-const PORT = process.env.PORT || 8080;
+require('./routes/auth.routes')(app);
+require('./routes/user.routes')(app);
+
+const PORT = process.env.PORT || 3034;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });

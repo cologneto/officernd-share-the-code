@@ -10,6 +10,7 @@ function RegistrationForm(props) {
         username : "",
         password : "",
         confirmPassword: "",
+        roles: [],
         successMessage: null
     })
     const handleChange = (e) => {
@@ -24,11 +25,13 @@ function RegistrationForm(props) {
         {
             props.showError(null);
             const payload = {
-                "email": state.email,
-                "password": state.password,
+                email : state.email,
+                username : state.username,
+                password : state.password,
+                roles: ['admin'],
         }
 
-        axios.post(API_BASE_URL+'/user/register', payload)
+        axios.post(API_BASE_URL+'/api/auth/signup', payload)
             .then(function (response) {
                 if(response.status === 200){
                     setState(prevState => ({
@@ -52,7 +55,7 @@ function RegistrationForm(props) {
     }
     const redirectToHome = () => {
         props.updateTitle('Home')
-        props.history.push('/home');
+        props.history.push('/');
     }
     const redirectToLogin = () => {
         props.updateTitle('Login')
