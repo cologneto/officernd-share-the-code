@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import Header from './components/Header/Header';
 import Home from './components/Home/Home';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
+import LoginForm from './components/LoginForm/LoginForm';
 import './App.css';
 import {
     BrowserRouter as Router,
@@ -23,6 +24,9 @@ function App() {
                         </Route>
                         <Route path="/signup">
                             <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle}/>
+                        </Route>
+                        <Route path="/signin">
+                            <LoginForm showError={updateErrorMessage} updateTitle={updateTitle}/>
                         </Route>
                     </Switch>
                 </div>

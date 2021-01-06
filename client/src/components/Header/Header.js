@@ -6,6 +6,10 @@ function Header(props) {
 
     const redirectToSignUp = () => {
         props.history.push('/signup');
+    };
+
+    const redirectToSignIn = () => {
+        props.history.push('/signin');
     }
 
     return(
@@ -14,7 +18,7 @@ function Header(props) {
                 <span className="h3">Welcome to "Share the code" application</span>
                 <div className="ml-auto">
                     <button className="btn btn-danger header-btn">Logout</button>
-                    <button className="btn btn-secondary header-btn">Login</button>
+                    <button className="btn btn-secondary header-btn" onClick={redirectToSignIn}>Sign In</button>
                     <button className="btn btn-light header-btn"  onClick={redirectToSignUp} >Sign Up</button>
                 </div>
             </div>
