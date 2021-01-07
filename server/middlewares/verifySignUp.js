@@ -22,7 +22,7 @@ checkDuplicateUsernameOrEmail = (req, res, next) => {
             email: req.body.email
         }).exec((err, user) => {
             if (err) {
-                res.status(500).send({ message: err });
+                    res.status(500).send({ message: err });
                 return;
             }
 

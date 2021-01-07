@@ -4,7 +4,7 @@ const Tag = mongoose.model(
     "Tag",
     new mongoose.Schema({
         name: String,
-        numberOfLikes: Number
+        numberOfSnippets: Number
     })
 );
 

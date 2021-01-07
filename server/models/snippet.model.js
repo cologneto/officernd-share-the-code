@@ -5,7 +5,10 @@ const Snippet = mongoose.model(
     new mongoose.Schema({
         code: String,
         numberOfLikes: Number,
-        username: String,
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
         tags: [
             {
                 type: mongoose.Schema.Types.ObjectId,
