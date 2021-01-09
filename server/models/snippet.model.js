@@ -4,7 +4,6 @@ const Snippet = mongoose.model(
     "Snippet",
     new mongoose.Schema({
         code: String,
-        numberOfLikes: Number,
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
@@ -14,7 +13,15 @@ const Snippet = mongoose.model(
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Tag"
             }
+        ],
+        likes: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Like"
+            }
         ]
+    }, {
+        timestamps: true
     })
 );
 

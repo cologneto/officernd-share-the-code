@@ -12,4 +12,5 @@ module.exports = function(app) {
     });
 
     app.post("/api/snippet/create", controller.createSnippet);
+    app.get("/api/snippet/all", controller.getSnippets);
 }
