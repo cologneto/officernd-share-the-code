@@ -1,6 +1,7 @@
 const db = require("../models");
 const Snippet = db.snippet;
 const Tag = db.tag;
+const Like = db.like;
 
 function getUniqueValuesWithCase(arr, caseSensitive){
     let temp = [];
@@ -89,9 +90,39 @@ exports.createSnippet = (req, res) => {
 
 exports.getSnippets = (req, res) => {
     const limit = parseInt(req.query.limit) || 5;
-    const skip = parseInt(req.query.limit) || 0;
+    const skip  = parseInt(req.query.skip) || 0;
+    let query = {};
 
+    if(req.query.userId) {
+        query = { userId: req.query.userId }
+    }
 
-    Snippet.find().sort('createdAt').skip(skip).limit(limit)
+    Snippet.find(query).sort('createdAt').skip(skip).limit(limit)
         .then(snippets => res.status(200).send({ snippets }));
+};
+
+exports.deleteSnippet = (req, res) => {
+    Snippet.find({ _id: req.params.id })
+        .then((snippet) => {
+            return Tag.find({
+                _id: { $in: snippet[0].tags }
+            })
+        })
+        .then((tags) => {
+            let promises = [];
+            tags.forEach((tag) => {
+                promises.push(Tag.updateOne(
+                    { _id: tag._id},
+                    { $set:
+                        {
+                            "numberOfSnippets": tag.numberOfSnippets - 1
+                        }
+                    }
+                ));
+            });
+            Promise.all(promises)
+                .then(() => {
+                    Snippet.deleteOne({ _id: req.params.id }).then(() => res.status(200).send({ message: 'Snipped Deleted'}));
+                });
+        })
 };

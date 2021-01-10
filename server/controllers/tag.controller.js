@@ -21,7 +21,7 @@ exports.createTag = (req, res) => {
 exports.getListOfTagNames = (req, res) => {
     Tag.find({
         _id: { $in: req.body.tags }
-    }).then(d => {
-        res.status(200).send(d);
+    }).then(tags => {
+        res.status(200).send(tags);
     })
 };

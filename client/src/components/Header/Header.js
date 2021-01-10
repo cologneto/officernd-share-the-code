@@ -8,6 +8,17 @@ function Header(props) {
         props.history.push('/signup');
     };
 
+    const capitalize = (s) => {
+        if (typeof s !== 'string') return ''
+        return s.charAt(0).toUpperCase() + s.slice(1)
+    }
+
+    let title = capitalize(props.location.pathname.substring(1,props.location.pathname.length))
+
+    if(props.location.pathname === '/') {
+        title = 'Welcome'
+    }
+
     const redirectToSignIn = () => {
         props.history.push('/signin');
     };
@@ -43,7 +54,7 @@ function Header(props) {
     return(
         <nav className="navbar navbar-dark bg-primary">
             <div className="row col-12 d-flex justify-content-center text-white">
-                <span className="h3">Welcome to "Share the code" application</span>
+                <span className="h3">{props.title || title}</span>s
                 <div className="ml-auto">
                     {renderLogout()}
                     {renderSignBtns()}

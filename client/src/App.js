@@ -3,6 +3,7 @@ import Header from './components/Header/Header';
 import Home from './components/Home/Home';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
 import LoginForm from './components/LoginForm/LoginForm';
+import CreateSnippet from './components/CreateSnippet/CreateSnippet';
 import AlertComponent from './components/AlertComponent/AlertComponent';
 import './App.css';
 import {
@@ -28,6 +29,9 @@ function App() {
                         </Route>
                         <Route path="/signin">
                             <LoginForm showError={updateErrorMessage} updateTitle={updateTitle}/>
+                        </Route>
+                        <Route path="/createSnippet">
+                            <CreateSnippet showError={updateErrorMessage} updateTitle={updateTitle}/>
                         </Route>
                     </Switch>
                     <AlertComponent errorMessage={errorMessage} hideError={updateErrorMessage}/>

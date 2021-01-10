@@ -8,7 +8,9 @@ function Home(props) {
     const [state , setState] = useState({
         isAdmin : false,
         isUser : false,
-        snippets: []
+        snippets: [],
+        skip: 0,
+        isUserSnippets: false
     });
 
     const renderDeleteBtn = () => {
@@ -20,6 +22,13 @@ function Home(props) {
             )
         }
     };
+
+    const toggleSnippets = () => {
+        setState(prevState => ({
+            ...prevState,
+            isUserSnippets: !state.isUserSnippets
+        }));
+    }
 
     const renderLikeBtn = () => {
         if (localStorage.getItem('username')) {
@@ -36,14 +45,60 @@ function Home(props) {
     };
 
     const renderAddSnippetBtn = () => {
-        return (
-            <button type="button" className="btn btn-primary btn-lg" style={{position: 'absolute', top: '30px', right: '30px'}}>Add Snippet</button>
-        )
+        if (localStorage.getItem('username')) {
+            return (
+                <button type="button" className="btn btn-primary btn-lg" onClick={redirectToCreateSnippet} style={{position: 'absolute', top: '100px', right: '30px'}}>Add Snippet</button>
+            )
+        }
+
+    };
+
+    const renderMySnippetsBtn = () => {
+        if (localStorage.getItem('username')) {
+            return (
+                <button type="button" className="btn btn-secondary btn-lg" onClick={toggleSnippets} style={{position: 'absolute', top: '150px', right: '30px'}}>
+                    { state.isUserSnippets ? "All Snippets" :"My snippets" }
+                </button>
+            )
+        }
+    };
+
+    const redirectToCreateSnippet = () => {
+        props.history.push('/createSnippet');
+    };
+
+    const renderSnippets = () => {
+        console.log(state.skip);
+        let url = API_BASE_URL + '/api/snippet/all?skip=' + state.skip;
+        if(state.isUserSnippets) {
+            url = url + '&userId=' + localStorage.getItem('userId');
+        }
+        return axios.get(url);
+    }
+
+    const loadMore = () => {
+        renderSnippets().then((res) => {
+            let snippets = res.data.snippets;
+            let arr = [];
+            snippets.forEach((s) => {
+                axios.post(API_BASE_URL + '/api/tags', {
+                    tags: s.tags
+                }).then((t) => {
+                    s.tags = t.data.map(sn => sn.name);
+                    arr.push(s);
+                    setState(prevState => ({
+                        ...prevState,
+                        snippets: state.snippets.concat(arr),
+                        skip: state.skip + 5
+                    }))
+                })
+            })
+        })
     }
 
     useEffect(() => {
         let mounted = true;
-        axios.get(API_BASE_URL + '/api/snippet/all').then((res) => {
+        renderSnippets().then((res) => {
             if (res.status === 200) {
                 let snippets = res.data.snippets;
                 let arr = [];
@@ -55,31 +110,22 @@ function Home(props) {
                         arr.push(s);
                         setState(prevState => ({
                             ...prevState,
-                            snippets: arr
+                            snippets: arr,
+                            skip: state.skip + 5
                         }))
                     })
                 })
             }
         });
 
-        if(localStorage.getItem(ACCESS_TOKEN_NAME)) {
-            let promises = [];
-            promises.push(axios.get(API_BASE_URL + '/api/test/user', { headers: { 'x-access-token': localStorage.getItem(ACCESS_TOKEN_NAME) }}));
-            promises.push(axios.get(API_BASE_URL + '/api/test/admin', { headers: { 'x-access-token': localStorage.getItem(ACCESS_TOKEN_NAME) }}));
-
-            Promise.all(promises)
-                .then((result) => {
-                    console.log(result)
-                })
-                .catch(e => console.log(e));
-        }
         return () => mounted = false;
     }, []);
 
     return(
         <div className="mt-2">
+            {renderAddSnippetBtn()}
+            {renderMySnippetsBtn()}
             <div className="card col-12 mt-2 hv-center">
-                {renderAddSnippetBtn()}
                 {state.snippets.map((snippet) => {
                     return (
                         <div key={snippet._id}>
@@ -110,6 +156,9 @@ function Home(props) {
             <div className="alert alert-success mt-2" style={{display: state.isAdmin ? 'block' : 'none' }} role="alert">
                 {state.isAdmin}
             </div>
+            <button type="button" className="btn btn-labeled btn-secondary" onClick={loadMore}>
+                <span className="btn-label">Load more...</span>
+            </button>
         </div>
     )
 }
