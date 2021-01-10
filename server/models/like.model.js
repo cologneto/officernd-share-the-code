@@ -7,7 +7,7 @@ const Tag = mongoose.model(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
-        snippet: {
+        snippetId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Snippet"
         }

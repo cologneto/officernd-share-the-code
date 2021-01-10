@@ -13,10 +13,51 @@ function Home(props) {
         isUserSnippets: false
     });
 
+    const deleteSnippet = (e) => {
+        const parent = e.target.closest('div');
+        const sid = parent.dataset.sid;
+
+        axios.get(API_BASE_URL + '/api/test/admin', { headers: { 'x-access-token': localStorage.getItem(ACCESS_TOKEN_NAME) }})
+            .then((res) => {
+                if(res.status === 200) {
+                    return axios.delete(API_BASE_URL + '/api/snippet/' + sid)
+                }
+            })
+            .then(() => {
+                let snips = state.snippets.filter(snip => snip._id !== sid);
+
+                setState(prevState => ({
+                    ...prevState,
+                    snippets: snips
+                }));
+            })
+            .catch(e => console.log(e))
+    };
+
+    const likeSnippet = (e) => {
+        const parent = e.target.closest('div');
+        const sid = parent.dataset.sid;
+        const payload = {
+            userId: localStorage.getItem('userId'),
+            snippetId: sid
+        }
+
+
+        axios.get(API_BASE_URL + '/api/test/user', { headers: { 'x-access-token': localStorage.getItem(ACCESS_TOKEN_NAME) }})
+            .then((res) => {
+                if(res.status === 200) {
+                    return axios.post(API_BASE_URL + '/api/like', payload)
+                }
+            })
+            .then(res => {
+                console.log(res);
+            })
+    };
+
     const renderDeleteBtn = () => {
         if (localStorage.getItem('roles') === 'ROLE_ADMIN') {
             return(
-                <button type="button" className="btn btn-labeled btn-danger float-right">
+                <button type="button" className="btn btn-labeled btn-danger float-right" onClick={deleteSnippet}>
                     <span className="btn-label">Delete</span>
                 </button>
             )
@@ -33,7 +74,7 @@ function Home(props) {
     const renderLikeBtn = () => {
         if (localStorage.getItem('username')) {
             return(
-                <button className="btn btn-secondary header-btn float-right" style={{marginLeft: '10px'}}>
+                <button className="btn btn-secondary header-btn float-right" style={{marginLeft: '10px'}} onClick={likeSnippet}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          className="bi bi-hand-thumbs-up" viewBox="0 0 16 16">
                         <path
@@ -116,6 +157,8 @@ function Home(props) {
                     })
                 })
             }
+        }).catch(e => {
+            console.log(e);
         });
 
         return () => mounted = false;
@@ -125,38 +168,46 @@ function Home(props) {
         <div className="mt-2">
             {renderAddSnippetBtn()}
             {renderMySnippetsBtn()}
-            <div className="card col-12 mt-2 hv-center">
-                {state.snippets.map((snippet) => {
-                    return (
-                        <div key={snippet._id}>
-                            <div className="card-body">
-                                <h4 className="card-title">Code</h4>
-                                <div className="card-text">
-                                    <pre>
-                                        <code>
-                                            {snippet.code}
-                                        </code>
-                                    </pre>
-                                </div>
-                                <div>
-                                    Tags
-                                </div>
+
+            {state.snippets.map((snippet) => {
+                return (
+                    <div style={{width: '1024px'}} key={snippet._id}>
+                        <div  className="container border mt-2" style={{textAlign: 'left'}}>
+                            <div data-sid={snippet._id} data-uid={snippet.userId}>
+                                <button
+                                    type="button"
+                                    className="btn btn-info float-right"
+                                    disabled={true}>
+                                        {snippet.likes.length}
+                                </button>
+                                {renderLikeBtn()}
+                                {renderDeleteBtn()}
+                            </div>
+                            <h2 className="text-left">Code</h2>
+                            <div className="bg-dark">
+                                <pre>
+                                    <code style={{color: 'white'}}>
+                                        {snippet.code}
+                                    </code>
+                                </pre>
+                            </div>
+                            <h2>Tags</h2>
+                            <div>
                                 {snippet.tags.map(t => {
                                     return (<span key={t}>{'#' + t + '  '}</span>)
                                 })}
-                                <div data-sid={snippet._id}>
-                                    {renderLikeBtn()}
-                                    {renderDeleteBtn()}
-                                </div>
                             </div>
+
                         </div>
-                    )
-                })}
-            </div>
-            <div className="alert alert-success mt-2" style={{display: state.isAdmin ? 'block' : 'none' }} role="alert">
+                    </div>
+
+
+                )
+            })}
+            <div className="alert alert-success " style={{display: state.isAdmin ? 'block' : 'none' }} role="alert">
                 {state.isAdmin}
             </div>
-            <button type="button" className="btn btn-labeled btn-secondary" onClick={loadMore}>
+            <button type="button" className="mt-2 btn btn-labeled btn-secondary" onClick={loadMore}>
                 <span className="btn-label">Load more...</span>
             </button>
         </div>

@@ -16,7 +16,7 @@ function getUniqueValuesWithCase(arr, caseSensitive){
 
 exports.createSnippet = (req, res) => {
     const snippet = new Snippet({
-        username: req.body.username,
+        userId: req.body.userId,
         code: req.body.code,
         tags: req.body.tags,
         numberOfLikes: 0
@@ -120,9 +120,17 @@ exports.deleteSnippet = (req, res) => {
                     }
                 ));
             });
-            Promise.all(promises)
-                .then(() => {
-                    Snippet.deleteOne({ _id: req.params.id }).then(() => res.status(200).send({ message: 'Snipped Deleted'}));
-                });
+            return Promise.all(promises)
         })
+        .then(() => {
+            return Snippet.deleteOne({ _id: req.params.id })
+        })
+        .then((result) => {
+            res.status(200).send({result})
+        })
+        .catch(e => console.log(e))
 };
+
+exports.updateSnippet = (req, res) => {
+
+}

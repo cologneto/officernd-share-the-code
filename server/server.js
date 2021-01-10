@@ -39,6 +39,7 @@ require('./routes/auth.routes')(app);
 require('./routes/user.routes')(app);
 require('./routes/snippet.routes')(app);
 require('./routes/tag.routes')(app);
+require('./routes/like.routes')(app);
 
 const PORT = process.env.PORT || 3034;
 app.listen(PORT, () => {
