@@ -3,6 +3,7 @@ import Header from './components/Header/Header';
 import Home from './components/Home/Home';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
 import LoginForm from './components/LoginForm/LoginForm';
+import AlertComponent from './components/AlertComponent/AlertComponent';
 import './App.css';
 import {
     BrowserRouter as Router,
@@ -29,6 +30,7 @@ function App() {
                             <LoginForm showError={updateErrorMessage} updateTitle={updateTitle}/>
                         </Route>
                     </Switch>
+                    <AlertComponent errorMessage={errorMessage} hideError={updateErrorMessage}/>
                 </div>
             </div>
         </Router>

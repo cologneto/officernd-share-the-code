@@ -21,8 +21,8 @@ function LoginForm(props) {
     const handleSubmitClick = (e) => {
         e.preventDefault();
         const payload = {
-            "username":state.username,
-            "password":state.password,
+            "username": state.username,
+            "password": state.password,
         };
 
         axios.post(API_BASE_URL+'/api/auth/signin', payload)
@@ -33,10 +33,13 @@ function LoginForm(props) {
                         'successMessage' : 'Login successful. Redirecting to home page..'
                     }))
                     localStorage.setItem(ACCESS_TOKEN_NAME, response.data.accessToken);
+                    localStorage.setItem('userId', response.data.id);
+                    localStorage.setItem('username', response.data.username);
+                    localStorage.setItem('roles', response.data.roles);
                     redirectToHome();
                     props.showError(null)
                 }
-                else if(response.code === 204){
+                else if(response.status === 204){
                     props.showError("Username and password do not match");
                 }
                 else{

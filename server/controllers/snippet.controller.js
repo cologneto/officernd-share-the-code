@@ -95,4 +95,3 @@ exports.getSnippets = (req, res) => {
     Snippet.find().sort('createdAt').skip(skip).limit(limit)
         .then(snippets => res.status(200).send({ snippets }));
 };
-

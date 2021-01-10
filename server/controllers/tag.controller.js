@@ -16,4 +16,12 @@ exports.createTag = (req, res) => {
 
         res.send({ message: "Tag was created successfully!" });
     })
-}
+};
+
+exports.getListOfTagNames = (req, res) => {
+    Tag.find({
+        _id: { $in: req.body.tags }
+    }).then(d => {
+        res.status(200).send(d);
+    })
+};

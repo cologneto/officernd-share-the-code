@@ -28,7 +28,7 @@ function RegistrationForm(props) {
                 email : state.email,
                 username : state.username,
                 password : state.password,
-                roles: ['admin'],
+                roles: ['user']
         }
 
         axios.post(API_BASE_URL+'/api/auth/signup', payload)
@@ -38,7 +38,8 @@ function RegistrationForm(props) {
                         ...prevState,
                         'successMessage' : 'Registration successful. Redirecting to home page..'
                     }))
-                    localStorage.setItem(ACCESS_TOKEN_NAME,response.data.token);
+                    localStorage.setItem(ACCESS_TOKEN_NAME, response.data.accessToken);
+                    localStorage.setItem('roles', response.data.roles);
                     redirectToHome();
                     props.showError(null)
                 } else{
@@ -46,7 +47,7 @@ function RegistrationForm(props) {
                 }
             })
             .catch(function (error) {
-                console.log(error);
+                console.log(error.response.data);
             });
         } else {
             props.showError('Please enter valid username and password')

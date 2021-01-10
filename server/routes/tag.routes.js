@@ -13,4 +13,5 @@ module.exports = function(app) {
     });
 
     app.post("/api/tag/create", [verifyTag.checkForDuplicateTag], controller.createTag);
+    app.post("/api/tags", controller.getListOfTagNames);
 };
