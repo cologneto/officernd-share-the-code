@@ -132,5 +132,17 @@ exports.deleteSnippet = (req, res) => {
 };
 
 exports.updateSnippet = (req, res) => {
+    const snippetId = req.body.snippetId;
+    const likeId = req.body._id;
 
+    Snippet.update(
+            { _id: snippetId},
+            { $push:
+                    {
+                        "likes": likeId
+                    }
+            }
+        )
+        .then(result => res.status(200).send(result))
+        .catch(e => console.log(e))
 }

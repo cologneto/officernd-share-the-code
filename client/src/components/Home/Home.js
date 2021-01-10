@@ -50,8 +50,12 @@ function Home(props) {
                 }
             })
             .then(res => {
-                console.log(res);
+                return axios.put(API_BASE_URL + '/api/snippet', res.data.like)
             })
+            .then(result => {
+                console.log(result);
+            })
+            .catch()
     };
 
     const renderDeleteBtn = () => {
