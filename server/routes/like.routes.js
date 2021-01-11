@@ -12,4 +12,5 @@ module.exports = function(app) {
     });
 
     app.post("/api/like", controller.createLike);
+    app.get("/api/likesPerSnippet/:snippetId", controller.getLikesPerSnippet);
 };

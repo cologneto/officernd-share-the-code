@@ -41,6 +41,7 @@ function Home(props) {
             userId: localStorage.getItem('userId'),
             snippetId: sid
         }
+        let likeId = '';
 
 
         axios.get(API_BASE_URL + '/api/test/user', { headers: { 'x-access-token': localStorage.getItem(ACCESS_TOKEN_NAME) }})
@@ -50,12 +51,30 @@ function Home(props) {
                 }
             })
             .then(res => {
+                likeId = res.data.like._id;
                 return axios.put(API_BASE_URL + '/api/snippet', res.data.like)
             })
-            .then(result => {
-                console.log(result);
+            .then(() => {
+                 updateSnippets(sid, likeId, parent);
             })
             .catch()
+    };
+
+    const updateSnippets = (snippetId, likeId, snippetContainer, event) => {
+        const snippetIn = state.snippets.findIndex(s => s._id === snippetId);
+        const arr = state.snippets;
+        const likeBtn = snippetContainer.querySelector('.like-btn');
+        likeBtn.disabled = true;
+        likeBtn.removeEventListener('click', function (e) {
+            e.preventDefault();
+        });
+
+        arr[snippetIn].likes.push(likeId);
+        console.log(likeId);
+        setState(prevState => ({
+            ...prevState,
+            snippets: arr
+        }));
     };
 
     const renderDeleteBtn = () => {
@@ -73,12 +92,16 @@ function Home(props) {
             ...prevState,
             isUserSnippets: !state.isUserSnippets
         }));
+        renderSnippets();
     }
 
     const renderLikeBtn = () => {
         if (localStorage.getItem('username')) {
             return(
-                <button className="btn btn-secondary header-btn float-right" style={{marginLeft: '10px'}} onClick={likeSnippet}>
+                <button className="btn btn-secondary header-btn float-right like-btn"
+                        style={{marginLeft: '10px'}}
+                        onClick={likeSnippet}
+                        disabled={state.likeBtnDisabled}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          className="bi bi-hand-thumbs-up" viewBox="0 0 16 16">
                         <path
@@ -119,16 +142,25 @@ function Home(props) {
             url = url + '&userId=' + localStorage.getItem('userId');
         }
         return axios.get(url);
+    };
+
+    const replaceLikeButton = (snippedId) => {
+        const snippedDiv = document.querySelector('[data-sid="'+ snippedId+ '"]');
+        const likeBtn = snippedDiv.querySelector('.like-btn');
+        const newBtn = document.createElement('button');
+        newBtn.innerHTML = 'Liked';
+        newBtn.disabled = true;
+        newBtn.classList.add("btn", "btn-secondary", "header-btn", "float-right");
+        likeBtn.parentNode.replaceChild(newBtn, likeBtn);
     }
 
-    const loadMore = () => {
-        renderSnippets().then((res) => {
-            let snippets = res.data.snippets;
-            let arr = [];
-            snippets.forEach((s) => {
-                axios.post(API_BASE_URL + '/api/tags', {
-                    tags: s.tags
-                }).then((t) => {
+    const retrieveSnippetsData = (snippets) => {
+        let arr = [];
+        snippets.forEach((s) => {
+            axios.post(API_BASE_URL + '/api/tags', {
+                tags: s.tags
+            })
+                .then((t) => {
                     s.tags = t.data.map(sn => sn.name);
                     arr.push(s);
                     setState(prevState => ({
@@ -136,30 +168,32 @@ function Home(props) {
                         snippets: state.snippets.concat(arr),
                         skip: state.skip + 5
                     }))
+                    return axios.get(API_BASE_URL + '/api/likesPerSnippet/' + s._id)
                 })
-            })
+                .then(l => {
+                    const likes = l.data.result;
+
+                    const userLike = likes.filter(like => like.userId === localStorage.getItem('userId'))
+
+                    if(userLike.length > 0) {
+                        replaceLikeButton(s._id);
+                    }
+
+                })
+        })
+    };
+
+    const loadMore = () => {
+        renderSnippets().then((res) => {
+            retrieveSnippetsData(res.data.snippets)
         })
     }
 
     useEffect(() => {
         let mounted = true;
         renderSnippets().then((res) => {
-            if (res.status === 200) {
-                let snippets = res.data.snippets;
-                let arr = [];
-                snippets.forEach((s) => {
-                    axios.post(API_BASE_URL + '/api/tags', {
-                        tags: s.tags
-                    }).then((t) => {
-                        s.tags = t.data.map(sn => sn.name);
-                        arr.push(s);
-                        setState(prevState => ({
-                            ...prevState,
-                            snippets: arr,
-                            skip: state.skip + 5
-                        }))
-                    })
-                })
+            if (res.status === 200 && mounted) {
+                retrieveSnippetsData(res.data.snippets)
             }
         }).catch(e => {
             console.log(e);

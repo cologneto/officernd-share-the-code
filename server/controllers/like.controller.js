@@ -17,3 +17,11 @@ exports.createLike = (req, res) => {
     })
 };
 
+exports.getLikesPerSnippet = (req,res) => {
+    Like.find({ snippetId: req.params.snippetId})
+        .then((result) => {
+            res.status(200).send({ result })
+        })
+        .catch(e => console.log(e))
+};
+
