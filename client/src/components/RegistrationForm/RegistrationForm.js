@@ -20,15 +20,16 @@ function RegistrationForm(props) {
             [id] : value
         }))
     }
-    const sendDetailsToServer = () => {
+    const sendDetailsToServer = (isAdmin) => {
         if(state.email.length && state.password.length)
         {
+
             props.showError(null);
             const payload = {
                 email : state.email,
                 username : state.username,
                 password : state.password,
-                roles: ['user']
+                roles: isAdmin ? ['admin'] : ['user']
         }
 
         axios.post(API_BASE_URL+'/api/auth/signup', payload)
@@ -62,14 +63,24 @@ function RegistrationForm(props) {
         props.updateTitle('Login')
         props.history.push('/login');
     }
-    const handleSubmitClick = (e) => {
+    const handleUserSubmitClick = (e) => {
         e.preventDefault();
         if(state.password === state.confirmPassword) {
-            sendDetailsToServer()
+            sendDetailsToServer(false);
         } else {
             props.showError('Passwords do not match');
         }
     }
+
+    const handleAdminSubmitClick = (e) => {
+        e.preventDefault();
+        if(state.password === state.confirmPassword) {
+            sendDetailsToServer(true);
+        } else {
+            props.showError('Passwords do not match');
+        }
+    }
+
     return(
         <div className="card col-12 col-lg-4 login-card mt-2 hv-center">
             <form>
@@ -118,9 +129,17 @@ function RegistrationForm(props) {
                 <button
                     type="submit"
                     className="btn btn-primary"
-                    onClick={handleSubmitClick}
+                    onClick={handleUserSubmitClick}
+                    style={{marginRight: '10px'}}
                 >
-                    Register
+                    Register user
+                </button>
+                <button
+                    type="submit"
+                    className="btn btn-primary"
+                    onClick={handleAdminSubmitClick}
+                >
+                    Register admin
                 </button>
             </form>
             <div className="alert alert-success mt-2" style={{display: state.successMessage ? 'block' : 'none' }} role="alert">

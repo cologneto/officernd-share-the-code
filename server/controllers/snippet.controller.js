@@ -102,6 +102,7 @@ exports.getSnippets = (req, res) => {
 };
 
 exports.deleteSnippet = (req, res) => {
+    const snippedId = req.params.id
     Snippet.find({ _id: req.params.id })
         .then((snippet) => {
             return Tag.find({
@@ -121,6 +122,9 @@ exports.deleteSnippet = (req, res) => {
                 ));
             });
             return Promise.all(promises)
+        })
+        .then(() => {
+            return Like.deleteMany({snippetId: snippedId})
         })
         .then(() => {
             return Snippet.deleteOne({ _id: req.params.id })

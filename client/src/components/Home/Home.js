@@ -7,10 +7,11 @@ function Home(props) {
 
     const [state , setState] = useState({
         isAdmin : false,
-        isUser : false,
+        isFirstChange : true,
         snippets: [],
         skip: 0,
-        isUserSnippets: false
+        isUserSnippets: false,
+
     });
 
     const deleteSnippet = (e) => {
@@ -43,6 +44,7 @@ function Home(props) {
         }
         let likeId = '';
 
+        replaceLikeButton(sid);
 
         axios.get(API_BASE_URL + '/api/test/user', { headers: { 'x-access-token': localStorage.getItem(ACCESS_TOKEN_NAME) }})
             .then((res) => {
@@ -60,14 +62,9 @@ function Home(props) {
             .catch()
     };
 
-    const updateSnippets = (snippetId, likeId, snippetContainer, event) => {
+    const updateSnippets = (snippetId, likeId) => {
         const snippetIn = state.snippets.findIndex(s => s._id === snippetId);
         const arr = state.snippets;
-        const likeBtn = snippetContainer.querySelector('.like-btn');
-        likeBtn.disabled = true;
-        likeBtn.removeEventListener('click', function (e) {
-            e.preventDefault();
-        });
 
         arr[snippetIn].likes.push(likeId);
         console.log(likeId);
@@ -90,10 +87,17 @@ function Home(props) {
     const toggleSnippets = () => {
         setState(prevState => ({
             ...prevState,
-            isUserSnippets: !state.isUserSnippets
+            isUserSnippets: !prevState.isUserSnippets,
+            isFirstChange: !prevState.isFirstChange,
+            skip: 0,
+            snippets: []
         }));
-        renderSnippets();
-    }
+
+        console.log(state.isUserSnippets);
+        console.log(state.snippets);
+
+        // loadMore();
+    };
 
     const renderLikeBtn = () => {
         if (localStorage.getItem('username')) {
@@ -115,7 +119,7 @@ function Home(props) {
     const renderAddSnippetBtn = () => {
         if (localStorage.getItem('username')) {
             return (
-                <button type="button" className="btn btn-primary btn-lg" onClick={redirectToCreateSnippet} style={{position: 'absolute', top: '100px', right: '30px'}}>Add Snippet</button>
+                <button type="button" className="btn btn-primary btn-lg" onClick={redirectToCreateSnippet} style={{position: 'fixed', top: '100px', right: '30px'}}>Add Snippet</button>
             )
         }
 
@@ -124,8 +128,9 @@ function Home(props) {
     const renderMySnippetsBtn = () => {
         if (localStorage.getItem('username')) {
             return (
-                <button type="button" className="btn btn-secondary btn-lg" onClick={toggleSnippets} style={{position: 'absolute', top: '150px', right: '30px'}}>
-                    { state.isUserSnippets ? "All Snippets" :"My snippets" }
+                <button type="button" className="btn btn-secondary btn-lg"
+                        onClick={toggleSnippets} style={{position: 'fixed', top: '150px', right: '30px'}}>
+                    { state.isUserSnippets ?  "My snippets" : "All Snippets"}
                 </button>
             )
         }
@@ -135,12 +140,23 @@ function Home(props) {
         props.history.push('/createSnippet');
     };
 
-    const renderSnippets = () => {
-        console.log(state.skip);
-        let url = API_BASE_URL + '/api/snippet/all?skip=' + state.skip;
-        if(state.isUserSnippets) {
-            url = url + '&userId=' + localStorage.getItem('userId');
+    const getUserSnippets = () => {
+        if(state.isFirstChange) {
+            setState(prevState => ({
+                ...prevState,
+                snippets: [],
+                skip: 0,
+            }))
         }
+
+        let url = API_BASE_URL + '/api/snippet/all?userId=' + localStorage.getItem('userId') + '&skip=' + state.skip;
+
+        return axios.get(url);
+    };
+
+    const getSnippets = () => {
+        let url = API_BASE_URL + '/api/snippet/all?skip=' + state.skip;
+
         return axios.get(url);
     };
 
@@ -151,6 +167,7 @@ function Home(props) {
         newBtn.innerHTML = 'Liked';
         newBtn.disabled = true;
         newBtn.classList.add("btn", "btn-secondary", "header-btn", "float-right");
+        newBtn.style.marginLeft = "10px";
         likeBtn.parentNode.replaceChild(newBtn, likeBtn);
     }
 
@@ -184,16 +201,23 @@ function Home(props) {
     };
 
     const loadMore = () => {
-        renderSnippets().then((res) => {
-            retrieveSnippetsData(res.data.snippets)
-        })
+        if(!state.isUserSnippets) {
+            getUserSnippets().then((res) => {
+                retrieveSnippetsData(res.data.snippets)
+            })
+        } else {
+            getSnippets().then((res) => {
+                retrieveSnippetsData(res.data.snippets)
+            })
+        }
     }
 
     useEffect(() => {
         let mounted = true;
-        renderSnippets().then((res) => {
+        getSnippets().then((res) => {
             if (res.status === 200 && mounted) {
                 retrieveSnippetsData(res.data.snippets)
+                toggleSnippets();
             }
         }).catch(e => {
             console.log(e);
@@ -245,6 +269,9 @@ function Home(props) {
             <div className="alert alert-success " style={{display: state.isAdmin ? 'block' : 'none' }} role="alert">
                 {state.isAdmin}
             </div>
+            {/*<button type="button" style={{display: state.isUserSnippets ? 'block' : 'none' }} className="mt-2 btn btn-labeled btn-secondary" onClick={loadMore}>*/}
+                {/*<span className="btn-label">Load more...</span>*/}
+            {/*</button>*/}
             <button type="button" className="mt-2 btn btn-labeled btn-secondary" onClick={loadMore}>
                 <span className="btn-label">Load more...</span>
             </button>

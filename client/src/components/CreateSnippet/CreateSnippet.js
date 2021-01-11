@@ -61,7 +61,8 @@ function CreateSnippet(props) {
                         id="code"
                         rows="15"
                         value={state.code}
-                        onChange={handleChange}>
+                        onChange={handleChange}
+                        required={true}>
                     </textarea>
 
 
@@ -73,6 +74,7 @@ function CreateSnippet(props) {
                            placeholder=""
                            value={state.tags}
                            onChange={handleChange}
+                           required={true}
                     />
                 </div>
                 <button

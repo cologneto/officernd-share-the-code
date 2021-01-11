@@ -26,6 +26,7 @@ function Header(props) {
     const logout = () => {
         localStorage.clear();
         props.history.push('/');
+        window.location.reload(false);
     };
 
     const renderLogout = () => {
