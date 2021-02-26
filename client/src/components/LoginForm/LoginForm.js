@@ -4,12 +4,26 @@ import './LoginForm.css';
 import {API_BASE_URL, ACCESS_TOKEN_NAME} from '../../constants/apiConstants';
 import { withRouter } from "react-router-dom";
 
+
+
+
 function LoginForm(props) {
     const [state , setState] = useState({
         username : "",
         password : "",
         successMessage: null
     })
+
+
+    axios.interceptors.response.use(response => {
+        return response;
+    }, error => {
+        if (error.response.status === 401) {
+            props.showError("Username does not exists");
+        }
+        return error;
+    });
+
     const handleChange = (e) => {
         const {id , value} = e.target
         setState(prevState => ({
@@ -46,17 +60,16 @@ function LoginForm(props) {
                     props.showError("Username does not exists");
                 }
             })
-            .catch(function (error) {
-                console.log(error);
-            });
     }
     const redirectToHome = () => {
         props.updateTitle('Home')
         props.history.push('/');
+        props.showError(null);
     }
     const redirectToSignUp = () => {
         props.history.push('/signup');
         props.updateTitle('Sign In');
+        props.showError(null);
     }
     return(
         <div className="card col-12 col-lg-4 login-card mt-2 hv-center">

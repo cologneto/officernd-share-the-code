@@ -36,6 +36,7 @@ function App() {
                     </Switch>
                     <AlertComponent errorMessage={errorMessage} hideError={updateErrorMessage}/>
                 </div>
+
             </div>
         </Router>
     )

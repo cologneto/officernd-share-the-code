@@ -67,7 +67,7 @@ function Home(props) {
         const arr = state.snippets;
 
         arr[snippetIn].likes.push(likeId);
-        console.log(likeId);
+
         setState(prevState => ({
             ...prevState,
             snippets: arr
@@ -92,9 +92,6 @@ function Home(props) {
             skip: 0,
             snippets: []
         }));
-
-        console.log(state.isUserSnippets);
-        console.log(state.snippets);
 
         // loadMore();
     };

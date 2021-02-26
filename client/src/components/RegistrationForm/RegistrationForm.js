@@ -39,7 +39,10 @@ function RegistrationForm(props) {
                         ...prevState,
                         'successMessage' : 'Registration successful. Redirecting to home page..'
                     }))
+
                     localStorage.setItem(ACCESS_TOKEN_NAME, response.data.accessToken);
+                    localStorage.setItem('userId', response.data.id);
+                    localStorage.setItem('username', response.data.username);
                     localStorage.setItem('roles', response.data.roles);
                     redirectToHome();
                     props.showError(null)
@@ -58,10 +61,12 @@ function RegistrationForm(props) {
     const redirectToHome = () => {
         props.updateTitle('Home')
         props.history.push('/');
+        props.showError(null);
     }
     const redirectToLogin = () => {
-        props.updateTitle('Login')
-        props.history.push('/login');
+        props.updateTitle('Sign In')
+        props.history.push('/signin');
+        props.showError(null);
     }
     const handleUserSubmitClick = (e) => {
         e.preventDefault();
